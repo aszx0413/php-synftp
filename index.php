@@ -76,7 +76,7 @@ if (!$ftpLogin) {
 	die('ftp cannot login'. "\n");
 }
 
-ftp_pasv($ftp, true);
+// ftp_pasv($ftp, true);
 
 $cnt = 0;
 $success = 0;
