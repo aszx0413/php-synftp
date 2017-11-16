@@ -8,8 +8,8 @@ if ($argc < 2) {
 } elseif (!file_exists(dirname(__FILE__) . "/projects/" . $argv[1] . ".php")) {
     die("项目 " . $argv[1] . " 不存在！\n");
 }
-$project        = include_once "projects/" . $argv[1] . ".php";
-$cfgFileContent = file_get_contents(dirname(__FILE__) . "/projects/" . $argv[1] . ".php");
+$project        = include_once 'projects/' . $argv[1] . '.php';
+$cfgFileContent = file_get_contents(dirname(__FILE__) . '/projects/' . $argv[1] . '.php');
 $tmp            = preg_match('/\/\/\s{1}Updated:\s{1}[0-9\-:\s]{19}/', $cfgFileContent, $result);
 if (!$tmp) {
     die("项目 " . $argv[1] . " 更新时间未设置！\n");
