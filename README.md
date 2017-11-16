@@ -55,4 +55,8 @@ return $cfg;
 
  - 命令行模式
 
-`$ index.php pm`
+`$ index.php pm [-t]`
+
+#### 参数说明
+
+`t` 测试模式，只检查需要上传更新的文件，不做FTP上传
