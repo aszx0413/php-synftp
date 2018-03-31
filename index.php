@@ -101,7 +101,7 @@ $success = 0;
 
 $lastDir = '';
 foreach ($ftpFiles as $v) {
-    echo ROOT_DIR.$v['path'].'/'.$v['name']."\n";
+    echo $v['path'].'/'.$v['name']."\n";
 
     if ($doFtp) {
         if (FTP_ROOT_DIR.$v['path'] != $lastDir) {
