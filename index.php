@@ -79,6 +79,25 @@ function tree($directory)
     return $files;
 }
 
+/**
+ * 创建 FTP 服务器端的目录
+ */
+function ftpMkdirs($ftp, $dirs)
+{
+    if (@ftp_chdir($ftp, $dirs)) {
+        return true;
+    }
+
+    $dirArr = explode('/', $dirs);
+    $fullDir = '';
+    foreach ($dirArr as $dir) {
+        $fullDir .= '/' . $dir;
+        if (!@ftp_chdir($ftp, $fullDir)) {
+            @ftp_mkdir($ftp, $fullDir);
+        }
+    }
+}
+
 $files = tree(ROOT_DIR); //获取本地项目所有文件
 
 if ($doFtp) {
@@ -105,14 +124,22 @@ foreach ($ftpFiles as $v) {
 
     if ($doFtp) {
         if (FTP_ROOT_DIR.$v['path'] != $lastDir) {
-            for ($i = 0; $i < 3; $i++) {
-                if (@ftp_chdir($ftp, FTP_ROOT_DIR.$v['path'])) {
-                    $inDir = true;
-                    break;
-                } else {
-                    echo "- Can't ftp_chdir to ".FTP_ROOT_DIR.$v['path']."\n";
-                }
+
+            // for ($i = 0; $i < 3; $i++) {
+            //     if (@ftp_chdir($ftp, FTP_ROOT_DIR.$v['path'])) {
+            //         $inDir = true;
+            //         break;
+            //     } else {
+            //         echo "- Can not ftp_chdir to ".FTP_ROOT_DIR.$v['path']."\n";
+            //     }
+            // }
+
+            if (@ftp_chdir($ftp, FTP_ROOT_DIR.$v['path'])) {
+                $inDir = true;
+            } else {
+                ftpMkdirs($ftp, FTP_ROOT_DIR.$v['path']);
             }
+
             if (!$inDir) {
                 if (!ftp_mkdir($ftp, FTP_ROOT_DIR.$v['path'])) {
                     die('- ftp_mkdir failed: '.FTP_ROOT_DIR.$v['path']."\n");
@@ -139,7 +166,7 @@ foreach ($ftpFiles as $v) {
 if ($doFtp) {
     ftp_close($ftp);
 
-    echo '- Total: '.$cnt.", Success: {$success}\n";
+    echo '🎉  - Total: '.$cnt.", Success: {$success}\n";
 
     if ($cnt == $success) {
         file_put_contents(dirname(__FILE__).'/projects/'.$argv[1].'.php', $newCfgFileContent);
