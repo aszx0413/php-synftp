@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 if ($argc < 2) {
     die('Usage: php index.php <PROJECT_NAME>'."\n");
 } elseif (!file_exists(dirname(__FILE__).'/projects/'.$argv[1].'.php')) {
-    die('项目 '.$argv[1]." 不存在！\n");
+    die('☹️  项目 '.$argv[1]." 不存在！\n");
 }
 $project = include_once 'projects/'.$argv[1].'.php';
 $cfgFileContent = file_get_contents(dirname(__FILE__).'/projects/'.$argv[1].'.php');
@@ -142,7 +142,7 @@ foreach ($ftpFiles as $v) {
 
             if (!$inDir) {
                 if (!ftp_mkdir($ftp, FTP_ROOT_DIR.$v['path'])) {
-                    die('- ftp_mkdir failed: '.FTP_ROOT_DIR.$v['path']."\n");
+                    die('☹️  - ftp_mkdir failed: '.FTP_ROOT_DIR.$v['path']."\n");
                 }
                 @ftp_chdir($ftp, FTP_ROOT_DIR.$v['path']);
             }
@@ -157,7 +157,7 @@ foreach ($ftpFiles as $v) {
             $success++;
         } else {
             var_dump($ret);
-            echo "- Can't ftp_put ".FTP_ROOT_DIR.$v['path'].'/'.$v['name']."\n";
+            echo "☹️  - Can't ftp_put ".FTP_ROOT_DIR.$v['path'].'/'.$v['name']."\n";
         }
         $cnt++;
     }
