@@ -141,10 +141,13 @@ foreach ($ftpFiles as $v) {
             }
 
             if (!$inDir) {
-                if (!ftp_mkdir($ftp, FTP_ROOT_DIR.$v['path'])) {
-                    die('☹️  - ftp_mkdir failed: '.FTP_ROOT_DIR.$v['path']."\n");
+                @ftp_mkdir($ftp, FTP_ROOT_DIR.$v['path']);
+                // if (!@ftp_mkdir($ftp, FTP_ROOT_DIR.$v['path'])) {
+                //     die('☹️  - ftp_mkdir failed: '.FTP_ROOT_DIR.$v['path']."\n");
+                // }
+                if (!@ftp_chdir($ftp, FTP_ROOT_DIR.$v['path'])) {
+                    die('☹️  - ftp_chdir failed: '.FTP_ROOT_DIR.$v['path']."\n");
                 }
-                @ftp_chdir($ftp, FTP_ROOT_DIR.$v['path']);
             }
             $inDir = false;
             $lastDir = FTP_ROOT_DIR.$v['path'];
