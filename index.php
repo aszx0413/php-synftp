@@ -80,7 +80,7 @@ function tree($directory)
 }
 
 /**
- * 创建 FTP 服务器端的目录
+ * 创建 FTP 服务器端的目录.
  */
 function ftpMkdirs($ftp, $dirs)
 {
@@ -91,7 +91,7 @@ function ftpMkdirs($ftp, $dirs)
     $dirArr = explode('/', $dirs);
     $fullDir = '';
     foreach ($dirArr as $dir) {
-        $fullDir .= '/' . $dir;
+        $fullDir .= '/'.$dir;
         if (!@ftp_chdir($ftp, $fullDir)) {
             @ftp_mkdir($ftp, $fullDir);
         }
