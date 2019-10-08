@@ -4,6 +4,9 @@ date_default_timezone_set('Etc/GMT-8');
 // error_reporting(E_ALL ^ E_WARNING ^ E_NOTICE);
 error_reporting(E_ALL);
 
+require 'lib/phpseclib/Net/SSH2.php';
+require 'lib/SftpClient.php';
+
 if ($argc < 2) {
     die('Usage: php index.php <PROJECT_NAME>'."\n");
 } elseif (!file_exists(dirname(__FILE__).'/projects/'.$argv[1].'.php')) {
@@ -100,20 +103,29 @@ function ftpMkdirs($ftp, $dirs)
 
 $files = tree(ROOT_DIR); //获取本地项目所有文件
 
+$sftp = null;
 if ($doFtp) {
-    $ftp = ftp_connect($project['ftp']['host']);
-    // $ftp = ftp_ssl_connect($project['ftp']['host']);
-    if (!$ftp) {
-        die('👎 ftp cannot connect'."\n");
-    }
+    try
+    {
+        $sftp = new \GR\SftpClient();
+        $sftp->connect($project['ftp']['host'], $project['ftp']['port']);
+        $sftp->login($project['ftp']['username'], $project['ftp']['password']);
+        $t = $sftp->getCurrentDirectory();
+        var_dump($t);
 
-    $ftpLogin = ftp_login($ftp, $project['ftp']['username'], $project['ftp']['password']);
-    if (!$ftpLogin) {
-        die('ftp cannot login'."\n");
+        // $sftp = new SFTPConnection($project['ftp']['host'], $project['ftp']['port']);
+        // $sftp->login($project['ftp']['username'], $project['ftp']['password']);
+        // $sftp->uploadFile("~/www/skty/test/a/b.txt", "/code/Yun/test/a/b.txt");
+    }
+    catch (Exception $e)
+    {
+        var_dump($e->getMessage());
+        die($e->getMessage()."\n");
     }
 
     // ftp_pasv($ftp, true);
 }
+die('OK' . "\n");
 
 $cnt = 0;
 $success = 0;
@@ -125,15 +137,6 @@ foreach ($ftpFiles as $v) {
     if ($doFtp) {
         if (FTP_ROOT_DIR.$v['path'] != $lastDir) {
 
-            // for ($i = 0; $i < 3; $i++) {
-            //     if (@ftp_chdir($ftp, FTP_ROOT_DIR.$v['path'])) {
-            //         $inDir = true;
-            //         break;
-            //     } else {
-            //         echo "- Can not ftp_chdir to ".FTP_ROOT_DIR.$v['path']."\n";
-            //     }
-            // }
-
             if (@ftp_chdir($ftp, FTP_ROOT_DIR.$v['path'])) {
                 $inDir = true;
             } else {
@@ -142,9 +145,6 @@ foreach ($ftpFiles as $v) {
 
             if (!$inDir) {
                 @ftp_mkdir($ftp, FTP_ROOT_DIR.$v['path']);
-                // if (!@ftp_mkdir($ftp, FTP_ROOT_DIR.$v['path'])) {
-                //     die('☹️  - ftp_mkdir failed: '.FTP_ROOT_DIR.$v['path']."\n");
-                // }
                 if (!@ftp_chdir($ftp, FTP_ROOT_DIR.$v['path'])) {
                     die('☹️  - ftp_chdir failed: '.FTP_ROOT_DIR.$v['path']."\n");
                 }
