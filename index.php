@@ -5,15 +5,15 @@ date_default_timezone_set('Etc/GMT-8');
 error_reporting(E_ALL);
 
 if ($argc < 2) {
-    die('Usage: php index.php <PROJECT_NAME>'."\n");
-} elseif (!file_exists(dirname(__FILE__).'/projects/'.$argv[1].'.php')) {
-    die('☹️  项目 '.$argv[1]." 不存在！\n");
+    die('Usage: php index.php <PROJECT_NAME>' . "\n");
+} elseif (!file_exists(dirname(__FILE__) . '/projects/' . $argv[1] . '.php')) {
+    die('☹️  项目 ' . $argv[1] . " 不存在！\n");
 }
-$project = include_once 'projects/'.$argv[1].'.php';
-$cfgFileContent = file_get_contents(dirname(__FILE__).'/projects/'.$argv[1].'.php');
-$tmp = preg_match('/\/\/\s{1}Updated:\s{1}[0-9\-:\s]{19}/', $cfgFileContent, $result);
+$project        = include_once 'projects/' . $argv[1] . '.php';
+$cfgFileContent = file_get_contents(dirname(__FILE__) . '/projects/' . $argv[1] . '.php');
+$tmp            = preg_match('/\/\/\s{1}Updated:\s{1}[0-9\-:\s]{19}/', $cfgFileContent, $result);
 if (!$tmp) {
-    die('项目 '.$argv[1]." 更新时间未设置！\n");
+    die('项目 ' . $argv[1] . " 更新时间未设置！\n");
 }
 $lastUpdatedTs = str_ireplace('// Updated: ', '', $result[0]);
 
@@ -56,11 +56,11 @@ function tree($directory)
     while ($file = $mydir->read()) {
         if ($file != '.' && $file != '..') {
             if (is_dir("$directory/$file")) {
-                if (!in_array("/$file", $ignored) && !in_array(str_replace(ROOT_DIR, '', $directory)."/$file", $ignored)) {
+                if (!in_array("/$file", $ignored) && !in_array(str_replace(ROOT_DIR, '', $directory) . "/$file", $ignored)) {
                     $files['ls'][] = tree("$directory/$file");
                 }
             } else {
-                if (!in_array($file, $ignored) && !in_array(str_replace(ROOT_DIR, '', $directory)."/$file", $ignored)) {
+                if (!in_array($file, $ignored) && !in_array(str_replace(ROOT_DIR, '', $directory) . "/$file", $ignored)) {
                     $ft = filemtime("$directory/$file");
                     if ($ft < filectime("$directory/$file")) {
                         $ft = filectime("$directory/$file");
@@ -88,10 +88,10 @@ function ftpMkdirs($ftp, $dirs)
         return true;
     }
 
-    $dirArr = explode('/', $dirs);
+    $dirArr  = explode('/', $dirs);
     $fullDir = '';
     foreach ($dirArr as $dir) {
-        $fullDir .= '/'.$dir;
+        $fullDir .= '/' . $dir;
         if (!@ftp_chdir($ftp, $fullDir)) {
             @ftp_mkdir($ftp, $fullDir);
         }
@@ -104,26 +104,26 @@ if ($doFtp) {
     $ftp = ftp_connect($project['ftp']['host']);
     // $ftp = ftp_ssl_connect($project['ftp']['host']);
     if (!$ftp) {
-        die('👎 ftp cannot connect'."\n");
+        die('👎 ftp cannot connect' . "\n");
     }
 
     $ftpLogin = ftp_login($ftp, $project['ftp']['username'], $project['ftp']['password']);
     if (!$ftpLogin) {
-        die('ftp cannot login'."\n");
+        die('ftp cannot login' . "\n");
     }
 
     // ftp_pasv($ftp, true);
 }
 
-$cnt = 0;
+$cnt     = 0;
 $success = 0;
 
 $lastDir = '';
 foreach ($ftpFiles as $v) {
-    echo $v['path'].'/'.$v['name']."\n";
+    echo $v['path'] . '/' . $v['name'] . "\n";
 
     if ($doFtp) {
-        if (FTP_ROOT_DIR.$v['path'] != $lastDir) {
+        if (FTP_ROOT_DIR . $v['path'] != $lastDir) {
 
             // for ($i = 0; $i < 3; $i++) {
             //     if (@ftp_chdir($ftp, FTP_ROOT_DIR.$v['path'])) {
@@ -134,33 +134,33 @@ foreach ($ftpFiles as $v) {
             //     }
             // }
 
-            if (@ftp_chdir($ftp, FTP_ROOT_DIR.$v['path'])) {
+            if (@ftp_chdir($ftp, FTP_ROOT_DIR . $v['path'])) {
                 $inDir = true;
             } else {
-                ftpMkdirs($ftp, FTP_ROOT_DIR.$v['path']);
+                ftpMkdirs($ftp, FTP_ROOT_DIR . $v['path']);
             }
 
             if (!$inDir) {
-                @ftp_mkdir($ftp, FTP_ROOT_DIR.$v['path']);
+                @ftp_mkdir($ftp, FTP_ROOT_DIR . $v['path']);
                 // if (!@ftp_mkdir($ftp, FTP_ROOT_DIR.$v['path'])) {
                 //     die('☹️  - ftp_mkdir failed: '.FTP_ROOT_DIR.$v['path']."\n");
                 // }
-                if (!@ftp_chdir($ftp, FTP_ROOT_DIR.$v['path'])) {
-                    die('☹️  - ftp_chdir failed: '.FTP_ROOT_DIR.$v['path']."\n");
+                if (!@ftp_chdir($ftp, FTP_ROOT_DIR . $v['path'])) {
+                    die('☹️  - ftp_chdir failed: ' . FTP_ROOT_DIR . $v['path'] . "\n");
                 }
             }
-            $inDir = false;
-            $lastDir = FTP_ROOT_DIR.$v['path'];
+            $inDir   = false;
+            $lastDir = FTP_ROOT_DIR . $v['path'];
         }
 
         // 传输模式有 FTP_ASCII/FTP_BINARY
-        $ret = ftp_put($ftp, $v['name'], ROOT_DIR.$v['path'].'/'.$v['name'], FTP_BINARY);
+        $ret = ftp_put($ftp, $v['name'], ROOT_DIR . $v['path'] . '/' . $v['name'], FTP_BINARY);
 
         if ($ret) {
             $success++;
         } else {
             var_dump($ret);
-            echo "☹️  - Can't ftp_put ".FTP_ROOT_DIR.$v['path'].'/'.$v['name']."\n";
+            echo "☹️  - Can't ftp_put " . FTP_ROOT_DIR . $v['path'] . '/' . $v['name'] . "\n";
         }
         $cnt++;
     }
@@ -169,10 +169,10 @@ foreach ($ftpFiles as $v) {
 if ($doFtp) {
     ftp_close($ftp);
 
-    echo '🎉  - Total: '.$cnt.", Success: {$success}\n";
+    echo '🎉  - Total: ' . $cnt . ", Success: {$success}\n";
 
     if ($cnt == $success) {
-        file_put_contents(dirname(__FILE__).'/projects/'.$argv[1].'.php', $newCfgFileContent);
+        file_put_contents(dirname(__FILE__) . '/projects/' . $argv[1] . '.php', $newCfgFileContent);
     }
 }
 
