@@ -1,3 +1,2 @@
-php:
-  enabled:
-    - unalign_equals
+enabled:
+  - unalign_equals
